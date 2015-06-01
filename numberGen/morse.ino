@@ -19,9 +19,8 @@ int numberCodes[10][5] ={
 };
 
 // Mode arrays, to change the speed
-int mode[6][3] ={
+int mode[5][3] ={
     {5500, 250, 200 }, // 0 Tutorial
-    {2000, 250, 200 }, // 1 Random
     {2000, 250, 200 }, // 2 Easy
     {1000, 200, 150 }, // 3 Medium
     {500, 150, 100 }, // 4 Hard
@@ -29,11 +28,10 @@ int mode[6][3] ={
 };
 // Mode Variables
 int mTutorial = 0;
-int mRandom = 1;
-int mEasy = 2;
-int mMedium = 3;
-int mHard = 4;
-int mXTream = 5;
+int mEasy = 1;
+int mMedium = 2;
+int mHard = 3;
+int mXTream = 4;
 
 // Setting the mode here applies the delay variables across the project
 int mCurrent = mTutorial; 
