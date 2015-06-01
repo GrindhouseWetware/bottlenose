@@ -63,7 +63,7 @@ void generatedNumbers(){
   for(int x=0; x<10; x++){
     if(isRandom == true){
       // if we're random, generate random #s
-      int randNumber = (int)random(9);
+      int randNumber = (int)random(10);
       numberSet[x] = randNumber;
       Serial.println(randNumber);
     }else{
