@@ -21,10 +21,10 @@ int numberCodes[10][5] ={
 // Mode arrays, to change the speed
 int mode[5][3] ={
     {5500, 250, 200 }, // 0 Tutorial
-    {2000, 250, 200 }, // 2 Easy
-    {1000, 200, 150 }, // 3 Medium
-    {500, 150, 100 }, // 4 Hard
-    {50, 100, 50 }  // 5 xTream
+    {2000, 250, 200 }, // 1 Easy
+    {1000, 200, 150 }, // 2 Medium
+    {500, 150, 100 }, // 3 Hard
+    {50, 100, 50 }  // 4 xTream
 };
 // Mode Variables
 int mTutorial = 0;
