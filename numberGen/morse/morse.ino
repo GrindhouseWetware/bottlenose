@@ -19,24 +19,22 @@ int numberCodes[10][5] ={
 };
 
 // Mode arrays, to change the speed
-int mode[6][3] ={
+int mode[5][3] ={
     {5500, 250, 200 }, // 0 Tutorial
-    {2000, 250, 200 }, // 1 Random
-    {2000, 250, 200 }, // 2 Easy
-    {1000, 200, 150 }, // 3 Medium
-    {500, 150, 100 }, // 4 Hard
-    {50, 100, 50 }  // 5 xTream
+    {2000, 250, 200 }, // 1 Easy
+    {1000, 200, 150 }, // 2 Medium
+    {500, 150, 100 }, // 3 Hard
+    {50, 100, 50 }  // 4 xTream
 };
 // Mode Variables
 int mTutorial = 0;
-int mRandom = 1;
-int mEasy = 2;
-int mMedium = 3;
-int mHard = 4;
-int mXTream = 5;
+int mEasy = 1;
+int mMedium = 2;
+int mHard = 3;
+int mXTream = 4;
 
 // Setting the mode here applies the delay variables across the project
-int mCurrent = mTutorial; 
+int mCurrent = mMedium; 
 
 // Placeholder array for the numbers we'll be woring with
 int numberSet[10];
@@ -65,7 +63,7 @@ void generatedNumbers(){
   for(int x=0; x<10; x++){
     if(isRandom == true){
       // if we're random, generate random #s
-      int randNumber = (int)random(9);
+      int randNumber = (int)random(10);
       numberSet[x] = randNumber;
       Serial.println(randNumber);
     }else{
