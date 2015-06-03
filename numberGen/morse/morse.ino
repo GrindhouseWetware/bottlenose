@@ -34,7 +34,7 @@ int mHard = 3;
 int mXTream = 4;
 
 // Setting the mode here applies the delay variables across the project
-int mCurrent = mTutorial; 
+int mCurrent = mMedium; 
 
 // Placeholder array for the numbers we'll be woring with
 int numberSet[10];
