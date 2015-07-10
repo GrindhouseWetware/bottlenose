@@ -94,6 +94,5 @@ void runNumber(int numberMask[5]){
     }
   }
   Serial.println("");
-  Serial.println("");
+  Serial.println(""); 
 }
-
