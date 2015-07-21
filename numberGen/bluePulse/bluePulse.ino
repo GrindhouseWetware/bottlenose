@@ -46,8 +46,8 @@ byte byteRead;
 
 void setup() {
     // sets the pins as outputs:
-    pinMode(ledPin, OUTPUT);
-    digitalWrite(ledPin, LOW);
+    pinMode(led, OUTPUT);
+    digitalWrite(led, LOW);
 
     Serial.begin(9600); // Default connection rate for my BT module
 }
