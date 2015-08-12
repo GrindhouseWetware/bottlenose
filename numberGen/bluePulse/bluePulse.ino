@@ -7,6 +7,9 @@ int ledPin = 13;  // use the built in LED on pin 13 of the Uno
 int state = 0;
 int flag = 0;        // make sure that you return the state only once
 int led = 4;
+int globalIndex = 0;
+String inputString = "";         // a string to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
 
 // 0s are dots, 1s are dashes.
 int numberCodes[10][5] ={
@@ -48,20 +51,19 @@ void setup() {
     // sets the pins as outputs:
     pinMode(led, OUTPUT);
     digitalWrite(led, LOW);
-
+    inputString.reserve(200);
     Serial.begin(9600); // Default connection rate for my BT module
 }
 
 void loop() {
     //if some data is sent, read it and save it in the state variable
-    if(Serial.available() > 0){
-      state = Serial.read();
-      flag=0;
-      //byteRead = (int)Serial.read()-48;
-      byteRead = ((int)state-48);
-      Serial.println(byteRead);
-      runNumber(numberCodes[byteRead]);
-      //runNumber(numberCodes[4]);
+    if (stringComplete) {
+      for(int i = 0; i < 4; i++){
+        runNumber(numberCodes[int(inputString[i])]);
+      }
+      // clear the string:
+      inputString = "";
+      stringComplete = false;
     }
 }
 
@@ -91,8 +93,29 @@ void runNumber(int numberMask[5]){
         delay(3);
       }
       delay(mode[mCurrent][2]);
-    }
+   }
   }
   Serial.println("");
   Serial.println(""); 
+}
+/*
+  SerialEvent occurs whenever a new data comes in the
+ hardware serial RX.  This routine is run between each
+ time loop() runs, so using delay inside loop can delay
+ response.  Multiple bytes of data may be available.
+ */
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    inputString += inChar;
+    globalIndex++;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (globalIndex == 3) {
+      stringComplete = true;
+      globalIndex = 0;    
+    }
+  }
 }
