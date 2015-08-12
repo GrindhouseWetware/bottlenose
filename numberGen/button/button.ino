@@ -71,7 +71,7 @@ void loop(){
   // read the state of the pushbutton value:
   buttonState = digitalRead(buttonPin);
 
-  if (buttonState == HIGH) {    
+  if (buttonState == HIGH || buttonState == LOW) {    
       for (int i = 0; i <4; i++){
         Serial.println(numberSet[i]);
         runNumber(numberCodes[numberSet[i]]);
