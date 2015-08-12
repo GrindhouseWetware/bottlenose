@@ -34,7 +34,7 @@ int mHard = 3;
 int mXTream = 4;
 
 // Setting the mode here applies the delay variables across the project
-int mCurrent = mMedium; 
+int mCurrent = mEasy; 
  
 // Input placeholder
 byte byteRead;
