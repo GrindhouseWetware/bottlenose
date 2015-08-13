@@ -7,6 +7,7 @@
 
 // Fake current time
 int currentTime[4] = {1,0,3,4};
+//testing
 
 // 0s are dots, 1s are dashes.
 int numberCodes[10][5] ={
