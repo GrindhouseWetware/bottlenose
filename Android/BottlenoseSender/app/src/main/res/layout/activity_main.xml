@@ -1,0 +1,82 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <ToggleButton
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/toggle_connection"
+        android:id="@+id/isConnected"
+        android:checked="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/button_rawdata"
+        android:layout_alignEnd="@+id/button_rawdata"
+        android:textOff="Disconnected"
+        android:textOn="Connected"
+        android:onClick="onConnectionToggle" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_cardsender"
+        android:id="@+id/button_cardsender"
+        android:layout_alignTop="@+id/button_timesender"
+        android:layout_toRightOf="@+id/button_timesender"
+        android:layout_toEndOf="@+id/button_timesender"
+        android:onClick="onButtonClickSendCards" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_timesender"
+        android:id="@+id/button_timesender"
+        android:onClick="onButtonClickSendTime"
+        android:layout_below="@+id/isConnected"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_rawdata"
+        android:id="@+id/button_rawdata"
+        android:layout_alignTop="@+id/button_cardsender"
+        android:layout_toRightOf="@+id/button_cardsender"
+        android:layout_toEndOf="@+id/button_cardsender"
+        android:onClick="onButtonClickSendRaw" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/linearlayout_content"
+        android:layout_below="@+id/button_cardsender">
+
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent" android:weightSum="1" android:id="@+id/mydevices">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_back_text"
+            android:id="@+id/button_back" android:onClick="deviceBack"/>
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listView"/>
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listView2"/>
+    </LinearLayout>
+
+</RelativeLayout>
