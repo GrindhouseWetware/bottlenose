@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BottlenoseSender</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="button_cardsender">Card Sender</string>
+    <string name="button_rawdata">Raw Data</string>
+    <string name="button_timesender">Time Sender</string>
+    <string name="toggle_connection">Connection</string>
+    <string name="button_back_text">Back</string>
+</resources>
