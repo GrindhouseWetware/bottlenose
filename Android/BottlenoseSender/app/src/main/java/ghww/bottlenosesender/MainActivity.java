@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ import ghww.wcl.IGrindhouseListener;
 public class MainActivity extends ActionBarActivity {
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
+    private ArrayList <String> passedValuesCollection = new ArrayList<String>();
     IGrindhouseDevice gdal = GrindhouseDeviceFactory.GetDevice(DeviceType.BOTTLENOSE, CommunicationType.BLUETOOTH);
     String _selectedDeviceID = "";
     @Override
@@ -80,13 +82,12 @@ public class MainActivity extends ActionBarActivity {
     public void onButtonClickSendCards(View v){
         LinearLayout layout = (LinearLayout) findViewById(R.id.linearlayout_content);
         layout.removeAllViews();
-        layout.addView(SuitsRow());
-        layout.addView(CardsRow1());
-        layout.addView(CardsRow2());
-        layout.addView(CardsRow3());
-        layout.addView(CardsRow4());
-
-        layout.addView(SendCardRow());
+        SuitsRow(layout);
+        CardsRow1(layout);
+        CardsRow2(layout);
+        CardsRow3(layout);
+        CardsRow4(layout);
+        SendCardRow(layout);
     }
 
     public void onButtonClickSendRaw(View v){
@@ -94,6 +95,35 @@ public class MainActivity extends ActionBarActivity {
         layout.removeAllViews();
         layout.addView(TextToSendRow());
         layout.addView(SendRawRow());
+    }
+
+    //build button
+    public void buildButtons(int buttonSet[], LinearLayout layout) {
+        Button b;
+        LinearLayout row = new LinearLayout(this);
+        row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        for(int buttonName : buttonSet) {
+            // TODO: anything but this
+            // if we can pass this function a miltidim array with the value and the desired text,
+            // I will sleep much better at night
+            if(ButtonIDs.values()[buttonName].name() == "HEARTS" ||
+               ButtonIDs.values()[buttonName].name() == "CLUBS" ||
+               ButtonIDs.values()[buttonName].name() == "SPADES" ||
+               ButtonIDs.values()[buttonName].name() == "DIAMONDS" ||
+               ButtonIDs.values()[buttonName].name() == "KING" ||
+               ButtonIDs.values()[buttonName].name() == "QUEEN" ||
+               ButtonIDs.values()[buttonName].name() == "JACK" ||
+               ButtonIDs.values()[buttonName].name() == "ACE")
+            {
+                b = GetButton(this,ButtonIDs.values()[buttonName].name(), ButtonIDs.values()[buttonName].ordinal());
+            }else{
+                b = GetButton(this, Integer.toString(ButtonIDs.values()[buttonName].ordinal()), ButtonIDs.values()[buttonName].ordinal());
+            }
+            b.setOnClickListener(suitButtonListener);
+            row.addView(b);
+        }
+        //return row;
+        layout.addView(row);
     }
 
     //PRIVATE
@@ -110,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
     private View StartRow() {
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this,"Start",ButtonIDs.START_TIME.ordinal()));
+        row.addView(GetButton(this, "Start", ButtonIDs.START_TIME.ordinal()));
         return row;
     }
 
@@ -132,69 +162,65 @@ public class MainActivity extends ActionBarActivity {
         return row;
     }
 
-    private View SendCardRow() {
-        LinearLayout row = new LinearLayout(this);
-        row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this,"Send",ButtonIDs.SEND_CARD.ordinal()));
-        return row;
-    }
-
-    private View SuitsRow() {
-        LinearLayout row = new LinearLayout(this);
-        row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this,"Diamonds",ButtonIDs.DIAMONDS.ordinal()));
-        row.addView(GetButton(this, "Hearts", ButtonIDs.HEARTS.ordinal()));
-        row.addView(GetButton(this, "Clubs", ButtonIDs.CLUBS.ordinal()));
-        row.addView(GetButton(this, "Spades", ButtonIDs.SPADES.ordinal()));
-        return row;
-    }
-
-    private View CardsRow1() {
+    private void SendCardRow(LinearLayout layout) {
         Button b;
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        b = GetButton(this, "A", ButtonIDs.ACE.ordinal());
-        b.setOnClickListener(cardButtonListener);
+        b = GetButton(this, "Send", ButtonIDs.SEND_CARD.ordinal());
+        b.setOnClickListener(suitButtonListener);
         row.addView(b);
-        b = GetButton(this, "2", ButtonIDs.TWO.ordinal());
-        b.setOnClickListener(cardButtonListener);
-        row.addView(b);
-        b = GetButton(this, "3", ButtonIDs.THREE.ordinal());
-        b.setOnClickListener(cardButtonListener);
-        row.addView(b);
-        b = GetButton(this, "4", ButtonIDs.FOUR.ordinal());
-        b.setOnClickListener(cardButtonListener);
-        row.addView(b);
-        return row;
+
+        //return row;
+        layout.addView(row);
     }
 
-    private View CardsRow2() {
-        Button b;
-        LinearLayout row = new LinearLayout(this);
-        row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this, "5", ButtonIDs.FIVE.ordinal()));
-        row.addView(GetButton(this, "6", ButtonIDs.SIX.ordinal()));
-        row.addView(GetButton(this, "7", ButtonIDs.SEVEN.ordinal()));
-        row.addView(GetButton(this, "8", ButtonIDs.EIGHT.ordinal()));
-        return row;
+    private void SuitsRow(LinearLayout layout) {
+        int[] suitRowNames = new int[]{
+                ButtonIDs.HEARTS.ordinal(),
+                ButtonIDs.DIAMONDS.ordinal(),
+                ButtonIDs.SPADES.ordinal(),
+                ButtonIDs.CLUBS.ordinal()
+        };
+        buildButtons(suitRowNames, layout);
     }
 
-    private View CardsRow3() {
-        LinearLayout row = new LinearLayout(this);
-        row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this, "9", ButtonIDs.NINE.ordinal()));
-        row.addView(GetButton(this, "10",ButtonIDs.TEN.ordinal()));
-        row.addView(GetButton(this, "J", ButtonIDs.JACK.ordinal()));
-        row.addView(GetButton(this, "Q", ButtonIDs.QUEEN.ordinal()));
-        return row;
+    private void CardsRow1(LinearLayout layout) {
+        int[] cardRowNames = new int[]{
+                ButtonIDs.ACE.ordinal(),
+                ButtonIDs.TWO.ordinal(),
+                ButtonIDs.THREE.ordinal(),
+                ButtonIDs.FOUR.ordinal()
+        };
+        buildButtons(cardRowNames, layout);
     }
 
-    private View CardsRow4() {
-        LinearLayout row = new LinearLayout(this);
-        row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this, "K", ButtonIDs.KING.ordinal()));
-        return row;
+    private void CardsRow2(LinearLayout layout) {
+        int[] cardRowNames = new int[]{
+                ButtonIDs.FIVE.ordinal(),
+                ButtonIDs.SIX.ordinal(),
+                ButtonIDs.SEVEN.ordinal(),
+                ButtonIDs.EIGHT.ordinal()
+        };
+        buildButtons(cardRowNames, layout);
     }
+
+    private void CardsRow3(LinearLayout layout) {
+        int[] cardRowNames = new int[]{
+                ButtonIDs.NINE.ordinal(),
+                ButtonIDs.TEN.ordinal(),
+                ButtonIDs.JACK.ordinal(),
+                ButtonIDs.KING.ordinal()
+        };
+        buildButtons(cardRowNames, layout);
+    }
+
+    private void CardsRow4(LinearLayout layout) {
+        int[] cardRowNames = new int[]{
+                ButtonIDs.QUEEN.ordinal()
+        };
+        buildButtons(cardRowNames, layout);
+    }
+
 
     private Button GetButton(Activity mainActivity, String text, int id) {
         Button btnTag = new Button(mainActivity);
@@ -207,7 +233,6 @@ public class MainActivity extends ActionBarActivity {
     public enum ButtonIDs{
         DEFAULT,
         ACE,
-        ONE,
         TWO,
         THREE,
         FOUR,
@@ -246,8 +271,54 @@ public class MainActivity extends ActionBarActivity {
     };
     //suit buttom
     public void onSuitButton(View v) {
-        Toast.makeText(getApplicationContext(), "SUIT BUTTON", Toast.LENGTH_LONG);
+        //Toast.makeText(getApplicationContext(), "SUIT BUTTON", Toast.LENGTH_LONG).show();
+        Button selectedSuit = (Button) v;
+
+        Toast.makeText(getApplicationContext(), selectedSuit.getText(), Toast.LENGTH_LONG).show();
+        String passedValue = selectedSuit.getText().toString();
+        if(passedValue.length()>2) {
+            passedValue = getCorrectedValue(passedValue);
+        }
+        if(passedValue.length()<2) {
+            passedValue = "0"+passedValue;
+        }
+
+        if(passedValue != "Send"){
+            //Toast.makeText(getApplicationContext(), "Real Value", Toast.LENGTH_LONG).show();
+            passedValuesCollection.add(passedValue);
+        }else if(passedValue == "Send" ){
+            //Toast.makeText(getApplicationContext(), "Sending...", Toast.LENGTH_LONG).show();
+            for(String cardValue : passedValuesCollection){
+                gdal.IssueCustomCommand(cardValue);
+                //Toast.makeText(getApplicationContext(), "SENT! ", Toast.LENGTH_LONG).show();
+            }
+            passedValuesCollection.clear();
+        }
     }
+
+    private String getCorrectedValue(String passedValue) {
+        if(passedValue == "CLUBS"){
+            return "11";
+        }else if(passedValue == "DIAMONDS"){
+            return "22";
+        }else if(passedValue == "HEARTS"){
+            return "33";
+        }else if(passedValue == "SPADES"){
+            return "44";
+        }else if(passedValue == "ACE"){
+            return "01";
+        }else if(passedValue == "JACK"){
+            return "11";
+        }else if(passedValue == "QUEEN"){
+            return "12";
+        }else if(passedValue == "KING"){
+            return "13";
+        }else{
+            return passedValue;
+        }
+
+    }
+
     View.OnClickListener suitButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -368,7 +439,7 @@ public class MainActivity extends ActionBarActivity {
                 mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
             }
         } else {
-            String noDevices = "No Devices Bitch".toString();
+            String noDevices = "No Devices Available".toString();
             mPairedDevicesArrayAdapter.add(noDevices);
         }
         ListView lv = (ListView)findViewById(R.id.listView);
