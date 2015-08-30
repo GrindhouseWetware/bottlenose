@@ -59,7 +59,12 @@ void loop() {
     //if some data is sent, read it and save it in the state variable
     if (stringComplete) {
       for(int i = 0; i < 4; i++){
-        runNumber(numberCodes[int(inputString[i])]);
+        byteRead = ((int)inputString[i]-48);
+        Serial.print(byteRead);
+        runNumber(numberCodes[byteRead]);
+        // Mid-number (or word?) delay, where one ends and one begins
+        // Need to find a comfotable balance here, using the speed settings maybe?
+        delay(1000); 
       }
       // clear the string:
       inputString = "";
@@ -96,7 +101,7 @@ void runNumber(int numberMask[5]){
    }
   }
   Serial.println("");
-  Serial.println(""); 
+  Serial.println("");
 }
 /*
   SerialEvent occurs whenever a new data comes in the
@@ -113,7 +118,7 @@ void serialEvent() {
     globalIndex++;
     // if the incoming character is a newline, set a flag
     // so the main loop can do something about it:
-    if (globalIndex == 3) {
+    if (globalIndex == 4) {
       stringComplete = true;
       globalIndex = 0;    
     }
