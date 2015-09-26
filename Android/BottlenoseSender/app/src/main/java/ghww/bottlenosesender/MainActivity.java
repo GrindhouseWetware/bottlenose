@@ -140,12 +140,21 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private View SuitsRow() {
+        Button b;
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this,"Diamonds",ButtonIDs.DIAMONDS.ordinal()));
-        row.addView(GetButton(this, "Hearts", ButtonIDs.HEARTS.ordinal()));
-        row.addView(GetButton(this, "Clubs", ButtonIDs.CLUBS.ordinal()));
-        row.addView(GetButton(this, "Spades", ButtonIDs.SPADES.ordinal()));
+        b = GetButton(this, "DIAMONDS", ButtonIDs.DIAMONDS.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "HEARTS", ButtonIDs.HEARTS.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "CLUBS", ButtonIDs.CLUBS.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "SPADES", ButtonIDs.SPADES.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
         return row;
     }
 
@@ -153,17 +162,17 @@ public class MainActivity extends ActionBarActivity {
         Button b;
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        b = GetButton(this, "A", ButtonIDs.ACE.ordinal());
-        b.setOnClickListener(cardButtonListener);
+        b = GetButton(this, "ACE", ButtonIDs.ACE.ordinal());
+        b.setOnClickListener(suitButtonListener);
         row.addView(b);
         b = GetButton(this, "2", ButtonIDs.TWO.ordinal());
-        b.setOnClickListener(cardButtonListener);
+        b.setOnClickListener(suitButtonListener);
         row.addView(b);
         b = GetButton(this, "3", ButtonIDs.THREE.ordinal());
-        b.setOnClickListener(cardButtonListener);
+        b.setOnClickListener(suitButtonListener);
         row.addView(b);
         b = GetButton(this, "4", ButtonIDs.FOUR.ordinal());
-        b.setOnClickListener(cardButtonListener);
+        b.setOnClickListener(suitButtonListener);
         row.addView(b);
         return row;
     }
@@ -172,27 +181,47 @@ public class MainActivity extends ActionBarActivity {
         Button b;
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this, "5", ButtonIDs.FIVE.ordinal()));
-        row.addView(GetButton(this, "6", ButtonIDs.SIX.ordinal()));
-        row.addView(GetButton(this, "7", ButtonIDs.SEVEN.ordinal()));
-        row.addView(GetButton(this, "8", ButtonIDs.EIGHT.ordinal()));
+        b = GetButton(this, "5", ButtonIDs.FIVE.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "6", ButtonIDs.SIX.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "7", ButtonIDs.SEVEN.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "8", ButtonIDs.EIGHT.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
         return row;
     }
 
     private View CardsRow3() {
+        Button b;
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this, "9", ButtonIDs.NINE.ordinal()));
-        row.addView(GetButton(this, "10",ButtonIDs.TEN.ordinal()));
-        row.addView(GetButton(this, "J", ButtonIDs.JACK.ordinal()));
-        row.addView(GetButton(this, "Q", ButtonIDs.QUEEN.ordinal()));
+        b = GetButton(this, "9", ButtonIDs.NINE.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "10", ButtonIDs.TEN.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "Jack", ButtonIDs.JACK.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
+        b = GetButton(this, "Queen", ButtonIDs.QUEEN.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
         return row;
     }
 
     private View CardsRow4() {
+        Button b;
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        row.addView(GetButton(this, "K", ButtonIDs.KING.ordinal()));
+        b = GetButton(this, "KING", ButtonIDs.KING.ordinal());
+        b.setOnClickListener(suitButtonListener);
+        row.addView(b);
         return row;
     }
 
@@ -246,8 +275,63 @@ public class MainActivity extends ActionBarActivity {
     };
     //suit buttom
     public void onSuitButton(View v) {
-        Toast.makeText(getApplicationContext(), "SUIT BUTTON", Toast.LENGTH_LONG);
+
+        //Toast.makeText(getApplicationContext(), "BUTTON", Toast.LENGTH_LONG).show();
+        Button selectedSuit = (Button) v;
+
+        String passedValue = selectedSuit.getText().toString();
+        //Toast.makeText(getApplicationContext(), passedValue, Toast.LENGTH_SHORT).show();
+        if(passedValue.length()>2) {
+            passedValue = getCorrectedValue(passedValue);
+            //passedValue = "00";
+        }
+        if(passedValue.length()<2) {
+            passedValue = "0"+passedValue;
+        }
+        Toast.makeText(getApplicationContext(), passedValue, Toast.LENGTH_SHORT).show();
+        gdal.IssueCustomCommand(passedValue);
+
+        /*if(passedValue != "Send"){
+            //Toast.makeText(getApplicationContext(), "Real Value", Toast.LENGTH_LONG).show();
+            passedValuesCollection.add(passedValue);
+        }else if(passedValue == "Send" ){
+            //Toast.makeText(getApplicationContext(), "Sending...", Toast.LENGTH_LONG).show();
+            for(String cardValue : passedValuesCollection){
+
+                //gdal.IssueCustomCommand(cardValue.toString());
+                System.out.print(cardValue.toString());
+                Toast.makeText(getApplicationContext(), cardValue.toString(), Toast.LENGTH_LONG).show();
+            }
+            passedValuesCollection.clear();
+        }*/
+
     }
+
+    private String getCorrectedValue(String passedValue) {
+
+        if(passedValue == "KING") {
+            return "13";
+        }else if(passedValue == "QUEEN"){
+            return "12";
+        }else if(passedValue == "JACK"){
+            return "11";
+        }else if(passedValue == "ACE"){
+            return "01";
+        }else if(passedValue == "CLUBS"){
+            return "22";
+        }else if(passedValue == "DIAMONDS"){
+            return "33";
+        }else if(passedValue == "HEARTS"){
+            return "44";
+        }else if(passedValue == "SPADES"){
+            return "55";
+        }else{
+            return null;
+        }
+
+
+    }
+
     View.OnClickListener suitButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
