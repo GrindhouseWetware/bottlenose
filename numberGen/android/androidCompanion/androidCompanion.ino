@@ -52,7 +52,7 @@ void setup() {
     pinMode(led, OUTPUT);
     digitalWrite(led, LOW);
     inputString.reserve(200);
-    Serial.begin(115200); // Default connection rate for my BT module
+    Serial.begin(9600); // Default connection rate for my BT module
 }
 
 void loop() {
@@ -114,7 +114,7 @@ void serialEvent() {
     // get the new byte:
     char inChar = (char)Serial.read();
     // add it to the inputString:
-    Serial.print(inChar);
+    //Serial.print(inChar);
     
     if(inChar != '\n' ){
       inputString += inChar;
