@@ -2,7 +2,6 @@ package ghww.wcl;
 
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,7 +90,7 @@ public class Bottlenose implements IGrindhouseDevice {
     @Override
     public boolean IssueCustomCommand(String command) {
         if(m_bts.isConnected()){
-            if(!command.contains("\n")) command += "\n";
+            //if(!command.contains("\n")) command += "\n";
             m_bts.write(StringToByteArray(command));
             return true;
         }
