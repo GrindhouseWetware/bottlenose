@@ -27,6 +27,7 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 /**
@@ -78,7 +79,14 @@ public class BluetoothSerialService implements IWirelessSerial {
 
     @Override
     public synchronized boolean isConnected(){
-        return getState() == BluetoothSerialService.STATE_CONNECTED;
+        //need to get the ordinal
+        int state = getState();
+        if(state == 3) {
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     /**
@@ -354,8 +362,10 @@ public class BluetoothSerialService implements IWirelessSerial {
          */
         public void write(byte[] buffer) {
             try {
-                mmOutStream.write(buffer);
-
+                for(int index  = 0; index < buffer.length; index++) {
+                    mmOutStream.write(buffer[index]);
+                    SystemClock.sleep(100);
+                }
                 // Share the sent message back to the UI Activity
                 mHandler.obtainMessage(IGrindhouseDevice.MESSAGE_WRITE, buffer.length, -1, buffer)
                         .sendToTarget();

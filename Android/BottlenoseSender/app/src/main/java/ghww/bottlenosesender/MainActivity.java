@@ -288,9 +288,18 @@ public class MainActivity extends ActionBarActivity {
             passedValuesCollection.add(passedValue);
         }else if(passedValue == "Send" ){
             //Toast.makeText(getApplicationContext(), "Sending...", Toast.LENGTH_LONG).show();
+            String sendString = "";
             for(String cardValue : passedValuesCollection){
-                gdal.IssueCustomCommand(cardValue);
-                //Toast.makeText(getApplicationContext(), "SENT! ", Toast.LENGTH_LONG).show();
+                sendString+=cardValue;
+                //
+            }
+            if(sendString.length() == 4){
+                gdal.IssueCustomCommand(sendString);
+                Toast.makeText(getApplicationContext(), "SENT! ", Toast.LENGTH_LONG).show();
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "TOO MANY CHARS! ", Toast.LENGTH_LONG).show();
+
             }
             passedValuesCollection.clear();
         }

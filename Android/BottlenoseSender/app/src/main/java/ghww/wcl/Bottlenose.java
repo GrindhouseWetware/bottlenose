@@ -90,7 +90,7 @@ public class Bottlenose implements IGrindhouseDevice {
     @Override
     public boolean IssueCustomCommand(String command) {
         if(m_bts.isConnected()){
-            if(!command.contains("\n")) command += "\n";
+            //if(!command.contains("\n")) command += "\n";
             m_bts.write(StringToByteArray(command));
             return true;
         }
