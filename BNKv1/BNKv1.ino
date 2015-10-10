@@ -1,5 +1,5 @@
 // Debug flag, uncomment to enable debug output
-//#define DEBUG
+#define DEBUG
 #define SAMPLES   10  // Number of distance samples to average
                       // Each sample should take less than 3ms
 #define trigPin   5   // Connected to trigger on the Ping)))
@@ -9,6 +9,7 @@
 void setup() {
   #ifdef DEBUG
     Serial.begin (9600);
+    Serial.println("Starting");
   #endif
   // Set pins to input/output
   pinMode(trigPin, OUTPUT);
@@ -24,20 +25,28 @@ void loop() {
   // Variable for the distance to the object
   long distance;
   // Number of samples to average
-  int samples = SAMPLES;
-  while(samples--){
-    digitalWrite(trigPin, HIGH);  // Send pulse to Ping)))
-    delayMicroseconds(5);
-    digitalWrite(trigPin, LOW);   // End pulse
-    duration += pulseIn(echoPin, HIGH); // Cumulative duration
-  }
-  duration /= SAMPLES;  // Average the samples
-  distance = duration / 58;       // Convert to centimeters
+  //int samples = SAMPLES;
+  //Serial.println(samples);
+  //while(samples--){
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration += pulseIn(echoPin, HIGH); // Cumulative duration
+    //Serial.println(duration);
+  //}
+  
+  
+  //duration += pulseIn(echoPin, HIGH);  // Average the samples
+  distance = (duration/2) / 29;       // Convert to centimeters
+  //Serial.println(duration);
+  //Serial.println(distance);
 
   // Sanity check the distance
   if (distance >= 400 || distance <= 0){
     #ifdef DEBUG
-      Serial.println("Out of range");
+      Serial.println(distance);
     #endif
     distance = 400;
   }
@@ -47,8 +56,12 @@ void loop() {
       Serial.println(" cm");
     }
   #endif
+  
+  //Serial.print(distance);
+  //Serial.println(" cm");
 
   // Send pulse to the inductor
+  
   digitalWrite (inductor,HIGH);
   delay(5);
   digitalWrite (inductor, LOW);
