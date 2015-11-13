@@ -1,0 +1,17 @@
+#Bottlenose 
+Here's the source code to drive a basic bottlenose, using an arduino uno, a [distance sensor model], and an android deice (for Morse code communication over bluetooth). These are by no means the limits of what you can interface with; this is nothing more than the code we've written for our own exploration and tsteing. 
+
+#Basic Functionality
+The essential use of the bottlenose is to vibrate implanted magnets based on input. Implanted magnets are not necessary; one taped to the skin will still provide feedback. However it will be neither as strong nor as nuanced. When a magnet is implanted the nerves in that area are able to knit back together around it. Thus, anything causing even the slightest vibration to the magnet will also vibrate the nerves themselves. Electromagnetic Radiation is one force that will cause magnets to vibrate from a distance, and is one of the forces we're harnessing here to provide context to our new ER sense. When electricity is passed through an inductor coil it releases a small burst of this radiation, so all we need to do is control the electrical pulses send to this inductor to vibrate our implanted magnets. How we send signals to the inductor? Well, that's where a bit of programing, engineering, and creativity come in. 
+
+We have two currently hosted examples, one based on data being streamed from a physical sensor and one based on numerical data being sent to the device over bluetooth. 
+
+#Distance Sensor
+The concept behind this piece is delightfully simple. The senor constantly reads how close an object is and continuously streams that value to the arduino. Once we have this value, we convert it to cm. Each time the sensor value is updated (which is constantly, as it's streaming) the inductor is powered for 5 ms. This creates a small ER burst that will cause a magnet to pulse. There is then a delay in ms equal to the last value we streamed in and converted before the inductor is allowed to pulse again. So, if we are 20 cm away, the inductor pulses for 5 ms every 20 ms. Moving closer causes the time between pulses to shorten, and away causes the delay to lengthen. Using this basic concept, you can hook any sensor into the system and with a few tweaks, have it essentially integrated into your nervous system.  
+
+#Morse Code
+Card guessing was a great way for us to showcase the concept. Please do not actually attempt to fleece a casino using this technology (though if you so, we are always accepting donations!) he core concept here hinges off of simple Morse code. I say simple as we've only been working with numbers thus far, which have been surprisingly easy to adapt to. The end goal is to be able to feel the short and long pulses and 'feel' the stream of data without needing to parse it, which from what we understand will happen after listening to Morse for long enough. All we're doing here is taking a number input on an android phone and sending it over bluetooth to the device. The number is then run against an array to figure out the sequence of short pulses (dots) and long pulses (dashes) that correlate. Electricity is then sent to the inductor for either a short moment or a longer moment, causing the magnet to vibrate in either a short or a sustained, longer pulse. From there it;s a matter of training yourself what each number is. 
+
+
+
+Diagrams were created using fritzing, which I HIGHLY recommend! 
