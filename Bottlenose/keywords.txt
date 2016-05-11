@@ -1,0 +1,16 @@
+bottlenose	KEYWORD1
+begin	KEYWORD2
+writeDigit	KEYWORD2
+writeChar	KEYWORD2
+writeString	KEYWORD2
+setDotLength KEYWORD2
+setDashLength KEYWORD2
+setCharGapLength KEYWORD2
+setHighDelayLength KEYWORD2
+setLowDelayLength KEYWORD2
+getDotLength KEYWORD2
+getDashLength KEYWORD2
+getCharGapLength KEYWORD2
+getHighDelayLength KEYWORD2
+getLowDelayLength KEYWORD2
+getPin KEYWORD2
