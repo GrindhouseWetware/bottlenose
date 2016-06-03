@@ -5,7 +5,7 @@ int i = 0;
 void setup()
 {
   Serial.begin(9600);
-  bn.begin(13);
+  bn.setPin(13);
   sensorUpperBound = 500;
   sensorLowerBound = 10;
   delayUpperBound = 100,
@@ -14,6 +14,5 @@ void setup()
 
 void loop()
 {
-  sensorVal = analogRead(A0);
-  bn.map(sensorUpperBound,sensorLowerBound,delayUpperBound,delayLowerBound, sensorVal);
+  bn.map(sensorUpperBound,sensorLowerBound,delayUpperBound,delayLowerBound, analogRead(A0));
 }
