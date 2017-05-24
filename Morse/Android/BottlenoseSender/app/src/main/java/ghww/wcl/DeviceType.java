@@ -4,5 +4,5 @@ public enum DeviceType{
     UNKNOWN,
     NORTHSTAR,
     BOTTLENOSE,
-    CIRCADIA;
+    CIRCADIA
 }

@@ -81,12 +81,7 @@ public class BluetoothSerialService implements IWirelessSerial {
     public synchronized boolean isConnected(){
         //need to get the ordinal
         int state = getState();
-        if(state == 3) {
-            return true;
-        }
-        else{
-            return false;
-        }
+        return state == 3;
     }
 
     /**

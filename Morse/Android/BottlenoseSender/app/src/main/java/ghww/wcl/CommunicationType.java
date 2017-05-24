@@ -4,5 +4,5 @@ public enum CommunicationType{
     UNKNOWN,
     BLUETOOTH,
     WIFI,
-    XBEE;
+    XBEE
 }
