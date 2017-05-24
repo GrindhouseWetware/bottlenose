@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -50,7 +52,9 @@ import ghww.wcl.GrindhouseDeviceFactory;
 import ghww.wcl.IGrindhouseDevice;
 import ghww.wcl.IGrindhouseListener;
 
-@TargetApi(3)
+import static android.os.Build.VERSION_CODES.KITKAT;
+
+@TargetApi(KITKAT)
 public class MainActivity extends ActionBarActivity {
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -63,6 +67,8 @@ public class MainActivity extends ActionBarActivity {
 
     private AlarmManager alarmMgr;
     private PendingIntent alarmIntent;
+    private BroadcastReceiver alarmReceiver;
+    private BroadcastReceiver SMSReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +116,54 @@ public class MainActivity extends ActionBarActivity {
         if (requestCode == SETTINGS_RESULT) {
             if (resultCode == Activity.RESULT_OK) {
                 setAlarm();
+
+                // Deregister the SMSReceiver
+                // The IllegalArgumentException will be thrown if it's not already registered
+                try {
+                    if (SMSReceiver != null) unregisterReceiver(alarmReceiver);
+                } catch(IllegalArgumentException e) {
+                    SMSReceiver = null;
+                }
+
+                // This BR will react to a new text message
+                // It extracts the text and the sender and sends it to the Bottlenose
+                SMSReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        Bundle bundle = intent.getExtras();
+                        String str = "";
+
+                        final SharedPreferences shared = PreferenceManager
+                                .getDefaultSharedPreferences(MainActivity.this);
+
+                        if (bundle != null)
+                        {
+
+                            Object[] pdus = (Object[]) bundle.get("pdus");
+                            for (Object pdu : pdus) {
+                                SmsMessage receivedMsg = SmsMessage.createFromPdu((byte[]) pdu);
+                                String pref = shared.getString(
+                                        getString(R.string.pref_key_sms),
+                                        getString(R.string.pref_sms_none));
+                                if(!Objects.equals(pref, getString(R.string.pref_sms_none))) {
+                                    // If SMS preference is anything but "Nothing"
+                                    // Send to the Bottlenose the sender of the text
+                                    str += "SMS from " + receivedMsg.getOriginatingAddress();
+                                }
+                                if(Objects.equals(pref, getString(R.string.pref_sms_all))) {
+                                    // If SMS preference is "all" send the text body as well
+                                    str += " :" + receivedMsg.getMessageBody();
+                                }
+                            }
+                        gdal.IssueCustomCommand(str);
+                        Toast.makeText(MainActivity.this, str, Toast.LENGTH_LONG).show();
+                    }
+                    }
+                };
+
+                IntentFilter iFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+                registerReceiver(alarmReceiver, iFilter);
+
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -117,7 +171,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void setAlarm() {
         // If preference for enabling metronome is checked, set alarm for this
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         if(shared.getBoolean(getString(R.string.pref_key_toggle), false)) {
             int refreshTime = Integer.parseInt(
@@ -129,12 +183,20 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent("ghww.bottlenosesender.ALARM_SEND_DATA");
             alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 
+            alarmMgr = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
             alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + refreshTimeMillis,
                     refreshTimeMillis, alarmIntent);
 
+            // Deregister previous alarm so the new one can take over
+            try {
+                if (alarmReceiver != null) unregisterReceiver(alarmReceiver);
+            } catch(IllegalArgumentException e) {
+                alarmReceiver = null;
+            }
+
             // Create BroadcastReceiver and IntentFilter to send to Bottlenose when alarm goes off
-            BroadcastReceiver br = new BroadcastReceiver() {
+            alarmReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String sentData = "";
@@ -201,7 +263,7 @@ public class MainActivity extends ActionBarActivity {
 
                             if (buffer.length() == 0) {
                                 // Stream was empty.  No point in parsing.
-                                return;
+                                sentData += "";
                             }
                             forecastJsonStr = buffer.toString();
                         } catch (IOException e) {
@@ -240,7 +302,7 @@ public class MainActivity extends ActionBarActivity {
             };
 
             IntentFilter iFilter = new IntentFilter("ghww.bottlenosesender.ALARM_SEND_DATA");
-            registerReceiver(br, iFilter);
+            registerReceiver(alarmReceiver, iFilter);
         } else {
             if (alarmMgr != null) {
                 alarmMgr.cancel(alarmIntent);

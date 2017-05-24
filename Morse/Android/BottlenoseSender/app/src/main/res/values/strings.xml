@@ -101,4 +101,12 @@
     <string name="pref_units_key" translatable="false">units</string>
     <string name="pref_units_metric" translatable="false">metric</string>
     <string name="pref_units_imperial" translatable="false">imperial</string>
+    <string name="pref_title_sms">When an SMS is received, send:</string>
+    <string name="pref_key_sms">pref_sms</string>
+    <string name="pref_sms_label_none">Nothing</string>
+    <string name="pref_sms_label_sender">Sender</string>
+    <string name="pref_sms_label_all">Sender and Message</string>
+    <string name="pref_sms_none">none</string>
+    <string name="pref_sms_sender">sender</string>
+    <string name="pref_sms_all">all</string>
 </resources>
