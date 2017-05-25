@@ -1,4 +1,4 @@
-/*
+ut/*
 Code for the easy use of Bottlenose Devices
 Copyright (C) 2016  Tim Cannon
 
@@ -21,12 +21,13 @@ int _currentPin = 8;     //Pin that the inductor will on
 int _msDot = 50;         //length of a dot
 int _msDash = 350;       //length of a dash
 int _msCharGap = 100;    //gap between items
+int _msWordGap = 350;    //gap between words (i.e. when a whitespace character is sent)
 int _highDelay = 2;      //how long to delay while HIGH
 int _lowDelay = 3;       // how long to delay will LOW
 
 //map of the digits. I will be soon converting this
 //to a bit mask and use byte values
-int _digits[10][5] ={
+int _digits[10][5] = {
     {1,1,1,1,1}, // 0
     {0,1,1,1,1}, // 1
     {0,0,1,1,1}, // 2
@@ -38,6 +39,36 @@ int _digits[10][5] ={
     {1,1,1,0,0}, // 8
     {1,1,1,1,0}, // 9
 };
+
+int _alphabet[26][4] = {
+    {0,1,-1,-1},   // A
+    {1,0,0,0},     // B
+    {1,0,1,0},     // C
+    {1,0,0,-1},    // D
+    {0,-1,-1,-1},  // E
+    {0,0,1,0},     // F
+    {1,1,0,-1},    // G
+    {0,0,0,0},     // H
+    {0,0,-1,-1},   // I
+    {0,1,1,1},     // J
+    {1,0,1,-1},    // K
+    {0,1,0,0},     // L
+    {1,1,-1,-1},   // M
+    {1,0,-1,-1},   // N
+    {1,1,1,-1},    // O
+    {0,1,1,0},     // P
+    {1,1,0,1},     // Q
+    {0,1,0,-1},    // R
+    {0,0,0,-1},    // S
+    {1,-1,-1,-1},  // T
+    {0,0,1,-1},    // U
+    {0,0,0,1},     // V
+    {0,1,1,-1},    // W
+    {1,0,0,1},     // X
+    {1,0,1,1},     // Y
+    {1,1,0,0},     // Z
+};
+
 //CONSTRUCTOR
 bottlenose::bottlenose(void)
 {
@@ -62,8 +93,26 @@ void bottlenose::writeDigit(int digit)
 *******************************************************/
 bool bottlenose::writeChar(char character)
 {
-  //TODO Alphabet
-  return 0;
+  if(character == ' ' || character == '\n' || character == '\t') {
+        // For whitespace character, marks end of word
+        // So just delay by the word gap delay
+        delay(_msWordGap);
+        return 1;
+  }
+  else if(character > 'a' && character < 'z') {
+        // For lowercase letters, subtract 'a' to find index
+        int index = static_cast<int>(character - 'a');
+        runAlpha(_alphabet[index]);
+        return 1;
+  }
+  else if(character > 'A' && character < 'Z') {
+        // For capital letters, subtract 'A' to find index
+        int index = static_cast<int>(character - 'A');
+        runAlpha(_alphabet[index]);
+        return 1;
+  }
+
+  return 0; // If char matches none of these patterns
 }
 /******************************************************
 * NAME
@@ -81,7 +130,7 @@ bool bottlenose::writeString(String character)
 * Summary: maps the appropriate delay value.
 * Params: sensorVal        - sensor value to map
 *         sensorLowerBound - lowest possible value
-*         sensorUpperBound - 
+*         sensorUpperBound -
 *         delayLowerBound  -
 *         delayUpperBound  -
 * Returns: calculated delay
@@ -166,6 +215,18 @@ void bottlenose::runNumber(int numberMask[5]){
     delay(_msCharGap);
   }
 }
+
+void bottlenose::runAlpha(int alphaMask[4]){
+  int dashCount = _msDash/(_highDelay + _lowDelay);
+  int dotCount  = _msDot/(_highDelay + _lowDelay);
+  for (int i = 0; i < 4; i++)
+  {
+    if(alphaMask[i] > 0) doDotOrDash(dashCount);
+    else doDotOrDash(dotCount);
+    delay(_msCharGap);
+  }
+}
+
 void bottlenose::doDotOrDash(int count){
   for(int j = 0; j < count; j++)
   {

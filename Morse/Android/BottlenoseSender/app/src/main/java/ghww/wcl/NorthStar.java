@@ -87,7 +87,7 @@ public class NorthStar implements IGrindhouseDevice {
                         JSONObject commands = jsonObj.getJSONObject("commands");
                         for (int i = 0; i < commands.length(); i++) {
                             String cName = (String) commands.names().get(i);
-                            JSONObject j = (JSONObject) commands.getJSONObject(cName);
+                            JSONObject j = commands.getJSONObject(cName);
                             GrindhouseCommand ghc = new GrindhouseCommand();
                             ghc.commandFriendlyName = j.getString("commandFriendlyName");
                             ghc.commandText = j.getString("commandText");

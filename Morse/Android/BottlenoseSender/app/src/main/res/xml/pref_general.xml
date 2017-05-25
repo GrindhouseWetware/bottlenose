@@ -1,0 +1,55 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:title="@string/pref_title_sms"
+        android:key="@string/pref_key_sms"
+        android:defaultValue="@string/pref_sms_none"
+        android:entryValues="@array/pref_values_sms"
+        android:entries="@array/pref_options_sms" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_toggle"
+        android:summary="@string/pref_description_toggle"
+        android:title="@string/pref_title_toggle" />
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_refresh_time"
+        android:inputType="number"
+        android:key="@string/pref_key_refresh_time"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_refresh_time" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_time"
+        android:title="@string/pref_title_time" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_temp"
+        android:title="@string/pref_title_temp" />
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_location"
+        android:inputType="number"
+        android:key="@string/pref_key_location"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_location" />
+
+    <ListPreference
+        android:title="@string/pref_units_label"
+        android:key="@string/pref_units_key"
+        android:defaultValue="@string/pref_units_metric"
+        android:entryValues="@array/pref_units_values"
+        android:entries="@array/pref_units_options" />
+
+
+
+</PreferenceScreen>

@@ -1,15 +1,23 @@
 package ghww.bottlenosesender;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.support.v7.app.ActionBarActivity;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
+import android.telephony.SmsMessage;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,12 +27,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -34,13 +52,24 @@ import ghww.wcl.GrindhouseDeviceFactory;
 import ghww.wcl.IGrindhouseDevice;
 import ghww.wcl.IGrindhouseListener;
 
+import static android.os.Build.VERSION_CODES.KITKAT;
 
+@TargetApi(KITKAT)
 public class MainActivity extends ActionBarActivity {
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    private static final int SETTINGS_RESULT = 1;
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     private ArrayList <String> passedValuesCollection = new ArrayList<String>();
     IGrindhouseDevice gdal = GrindhouseDeviceFactory.GetDevice(DeviceType.BOTTLENOSE, CommunicationType.BLUETOOTH);
     String _selectedDeviceID = "";
+
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
+    private BroadcastReceiver alarmReceiver;
+    private BroadcastReceiver SMSReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +77,15 @@ public class MainActivity extends ActionBarActivity {
         mPairedDevicesArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
         mNewDevicesArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
         gdal.addListener(dataChangeListener);
+        setAlarm();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (alarmMgr != null) {
+            alarmMgr.cancel(alarmIntent);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -66,10 +104,210 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS_RESULT);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SETTINGS_RESULT) {
+            if (resultCode == Activity.RESULT_OK) {
+                setAlarm();
+
+                // Deregister the SMSReceiver
+                // The IllegalArgumentException will be thrown if it's not already registered
+                try {
+                    if (SMSReceiver != null) unregisterReceiver(alarmReceiver);
+                } catch(IllegalArgumentException e) {
+                    SMSReceiver = null;
+                }
+
+                // This BR will react to a new text message
+                // It extracts the text and the sender and sends it to the Bottlenose
+                SMSReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        Bundle bundle = intent.getExtras();
+                        String str = "";
+
+                        final SharedPreferences shared = PreferenceManager
+                                .getDefaultSharedPreferences(MainActivity.this);
+
+                        if (bundle != null)
+                        {
+
+                            Object[] pdus = (Object[]) bundle.get("pdus");
+                            for (Object pdu : pdus) {
+                                SmsMessage receivedMsg = SmsMessage.createFromPdu((byte[]) pdu);
+                                String pref = shared.getString(
+                                        getString(R.string.pref_key_sms),
+                                        getString(R.string.pref_sms_none));
+                                if(!Objects.equals(pref, getString(R.string.pref_sms_none))) {
+                                    // If SMS preference is anything but "Nothing"
+                                    // Send to the Bottlenose the sender of the text
+                                    str += "SMS from " + receivedMsg.getOriginatingAddress();
+                                }
+                                if(Objects.equals(pref, getString(R.string.pref_sms_all))) {
+                                    // If SMS preference is "all" send the text body as well
+                                    str += " :" + receivedMsg.getMessageBody();
+                                }
+                            }
+                        gdal.IssueCustomCommand(str);
+                        Toast.makeText(MainActivity.this, str, Toast.LENGTH_LONG).show();
+                    }
+                    }
+                };
+
+                IntentFilter iFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+                registerReceiver(alarmReceiver, iFilter);
+
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setAlarm() {
+        // If preference for enabling metronome is checked, set alarm for this
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(shared.getBoolean(getString(R.string.pref_key_toggle), false)) {
+            int refreshTime = Integer.parseInt(
+                    shared.getString(getString(R.string.pref_key_refresh_time),
+                            getString(R.string.pref_default_refresh_time)));
+            long refreshTimeMillis = refreshTime*60*1000;
+
+            // Create PendingIntent and send it every refreshTime minutes
+            Intent intent = new Intent("ghww.bottlenosesender.ALARM_SEND_DATA");
+            alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+            alarmMgr = (AlarmManager)MainActivity.this.getSystemService(Context.ALARM_SERVICE);
+            alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + refreshTimeMillis,
+                    refreshTimeMillis, alarmIntent);
+
+            // Deregister previous alarm so the new one can take over
+            try {
+                if (alarmReceiver != null) unregisterReceiver(alarmReceiver);
+            } catch(IllegalArgumentException e) {
+                alarmReceiver = null;
+            }
+
+            // Create BroadcastReceiver and IntentFilter to send to Bottlenose when alarm goes off
+            alarmReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String sentData = "";
+                    if(shared.getBoolean(getString(R.string.pref_key_time), false)) {
+                        // Get current time and add to sent data in HHMM format
+                        Calendar calendar = Calendar.getInstance();
+                        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+                        int mins = calendar.get(Calendar.MINUTE);
+                        sentData += (String.valueOf(hours) + String.valueOf(mins));
+                    }
+                    if(shared.getBoolean(getString(R.string.pref_key_temp), false)) {
+                        // These two need to be declared outside the try/catch
+                        // so that they can be closed in the finally block.
+                        HttpURLConnection urlConnection = null;
+                        BufferedReader reader = null;
+
+                        // Will contain the raw JSON response as a string.
+                        String forecastJsonStr = null;
+
+                        String location = shared.getString(getString(R.string.pref_key_location),
+                                getString(R.string.pref_default_location));
+                        String units = shared.getString(getString(R.string.pref_units_key),
+                                getString(R.string.pref_units_metric));
+
+                        // Get current temperature and add to sent data
+                        try {
+                            // Construct the URL for the OpenWeatherMap query
+                            // Possible parameters are avaiable at OWM's forecast API page, at
+                            // http://openweathermap.org/API#forecast
+                            final String FORECAST_BASE_URL =
+                                    "http://api.openweathermap.org/data/2.5/weather?";
+                            final String QUERY_PARAM = "q";
+                            final String UNITS_PARAM = "units";
+                            final String LOCATION_PARAM = "zip";
+
+                            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                                    .appendQueryParameter(UNITS_PARAM, units)
+                                    .appendQueryParameter(LOCATION_PARAM, location)
+                                    .build();
+
+                            URL url = new URL(builtUri.toString());
+
+                            // Create the request to OpenWeatherMap, and open the connection
+                            urlConnection = (HttpURLConnection) url.openConnection();
+                            urlConnection.setRequestMethod("GET");
+                            urlConnection.connect();
+
+                            // Read the input stream into a String
+                            InputStream inputStream = urlConnection.getInputStream();
+                            StringBuffer buffer = new StringBuffer();
+                            if (inputStream == null) {
+                                // Nothing to do.
+                                sentData += "";
+                            }
+                            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                                // But it does make debugging a *lot* easier if you print out the completed
+                                // buffer for debugging.
+                                buffer.append(line + "\n");
+                            }
+
+                            if (buffer.length() == 0) {
+                                // Stream was empty.  No point in parsing.
+                                sentData += "";
+                            }
+                            forecastJsonStr = buffer.toString();
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "Error ", e);
+                            // If the code didn't successfully get the weather data, there's no point in attemping
+                            // to parse it.
+                            return;
+                        } finally {
+                            if (urlConnection != null) {
+                                urlConnection.disconnect();
+                            }
+                            if (reader != null) {
+                                try {
+                                    reader.close();
+                                } catch (final IOException e) {
+                                    Log.e(LOG_TAG, "Error closing stream", e);
+                                }
+                            }
+                        }
+
+                        try {
+                            JSONObject forecastJson = new JSONObject(forecastJsonStr);
+                            JSONObject weatherObject = forecastJson.getJSONObject("main");
+                            double temp = weatherObject.getDouble("temp");
+                            sentData += String.valueOf(temp);
+                        } catch (JSONException e) {
+                            Log.e(LOG_TAG, e.getMessage(), e);
+                            e.printStackTrace();
+                        }
+                        // This will only happen if there was an error getting or parsing the forecast.
+                        sentData += "";
+                    }
+
+                    gdal.IssueCustomCommand(sentData);
+                }
+            };
+
+            IntentFilter iFilter = new IntentFilter("ghww.bottlenosesender.ALARM_SEND_DATA");
+            registerReceiver(alarmReceiver, iFilter);
+        } else {
+            if (alarmMgr != null) {
+                alarmMgr.cancel(alarmIntent);
+            }
+        }
     }
 
     public void onButtonClickSendTime(View v) {
@@ -406,7 +644,7 @@ public class MainActivity extends ActionBarActivity {
             gdal.ConnectToDevice("", address);
             findViewById(R.id.isConnected).setVisibility(View.VISIBLE);
             ((ToggleButton)findViewById(R.id.isConnected)).setChecked(gdal.isConnected());
-            ((ToggleButton)findViewById(R.id.isConnected)).setEnabled(gdal.isConnected());
+            findViewById(R.id.isConnected).setEnabled(gdal.isConnected());
             mNewDevicesArrayAdapter.clear();
             mPairedDevicesArrayAdapter.clear();
 
@@ -491,15 +729,41 @@ public class MainActivity extends ActionBarActivity {
             ToggleButton tb = (ToggleButton)findViewById(R.id.isConnected);
             if(gdal.isConnected()) {
                 tb.setChecked(true);
-                ((ToggleButton)findViewById(R.id.isConnected)).setEnabled(true);
+                findViewById(R.id.isConnected).setEnabled(true);
             }
             else if(!gdal.isConnected()){
                 tb.setChecked(false);
-                ((ToggleButton)findViewById(R.id.isConnected)).setEnabled(true);
+                findViewById(R.id.isConnected).setEnabled(true);
             }
 
 
         }
 
     };
+
+    public void deviceBack(View v) {
+        String info = ((TextView) v).getText().toString();
+        String address = "";
+        LinearLayout content = (LinearLayout) findViewById(R.id.linearlayout_content);
+        LinearLayout devices = (LinearLayout) findViewById(R.id.mydevices);
+
+        Button rawData = (Button) findViewById(R.id.button_rawdata);
+        Button timeSender = (Button) findViewById(R.id.button_timesender);
+        Button cardSender = (Button) findViewById(R.id.button_cardsender);
+        ToggleButton isConnected = (ToggleButton) findViewById(R.id.isConnected);
+
+        if (info.length() > 17)
+            address = info.substring(info.length() - 17);
+        else
+            address = info;
+
+        _selectedDeviceID = address;
+        content.setVisibility(View.VISIBLE);
+        devices.setVisibility(View.GONE);
+
+        rawData.setVisibility(View.VISIBLE);
+        timeSender.setVisibility(View.VISIBLE);
+        cardSender.setVisibility(View.VISIBLE);
+        isConnected.setVisibility(View.VISIBLE);
+    }
 }

@@ -46,6 +46,7 @@ class bottlenose
 
   private:
     void runNumber(int digit[5]);
+    void runAlpha(int alpha[4]);
     void doDotOrDash(int count);
 
 };

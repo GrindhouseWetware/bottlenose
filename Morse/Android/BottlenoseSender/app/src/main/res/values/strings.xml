@@ -8,4 +8,105 @@
     <string name="button_timesender">Time Sender</string>
     <string name="toggle_connection">Connection</string>
     <string name="button_back_text">Back</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string-array name="list_preference_entries">
+        <item>Entry 1</item>
+        <item>Entry 2</item>
+        <item>Entry 3</item>
+    </string-array>
+
+    <string-array name="list_preference_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="multi_select_list_preference_default_value" />
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="toggle_alarm">pref_key_toggle</string>
+    <string name="pref_key_toggle">toggle_alarm</string>
+    <string name="pref_description_toggle">Send periodic information to Bottlenose</string>
+    <string name="pref_title_toggle">Turn On Updates</string>
+    <string name="pref_default_refresh_time">60</string>
+    <string name="pref_key_refresh_time">refresh_time</string>
+    <string name="pref_title_refresh_time">Refresh Time (minutes)</string>
+    <string name="pref_key_time">send_time</string>
+    <string name="pref_title_time">Send Time</string>
+    <string name="pref_key_temp">send_temp</string>
+    <string name="pref_title_temp">Send Temperature</string>
+    <string name="pref_title_location">Location</string>
+    <string name="pref_key_location">location</string>
+    <string name="pref_default_location">55455</string>
+    <string name="pref_units_label">Temperature Units</string>
+    <string name="pref_units_label_metric">Metric</string>
+    <string name="pref_units_label_imperial">Imperial</string>
+    <string name="pref_units_key" translatable="false">units</string>
+    <string name="pref_units_metric" translatable="false">metric</string>
+    <string name="pref_units_imperial" translatable="false">imperial</string>
+    <string name="pref_title_sms">When an SMS is received, send:</string>
+    <string name="pref_key_sms">pref_sms</string>
+    <string name="pref_sms_label_none">Nothing</string>
+    <string name="pref_sms_label_sender">Sender</string>
+    <string name="pref_sms_label_all">Sender and Message</string>
+    <string name="pref_sms_none">none</string>
+    <string name="pref_sms_sender">sender</string>
+    <string name="pref_sms_all">all</string>
 </resources>
